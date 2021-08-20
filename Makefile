@@ -1,49 +1,21 @@
 VERSION = 1.0.7
 LDFLAGS = -ldflags '-s -w' -gcflags=-trimpath=${PWD} -asmflags=-trimpath=${PWD}
-GOARCH = amd64
-linux: export GOOS=linux
-linux_arm: export GOOS=linux
-linux_arm: export GOARCH=arm
-linux_arm: export GOARM=6
-linux_arm64: export GOOS=linux
-linux_arm64: export GOARCH=arm64
-darwin: export GOOS=darwin
-windows: export GOOS=windows
+.PHONY: all linux_amd64 linux_arm64 darwin_amd64 darwin_arm64 windows_amd64 clean _build
 
-.PHONY: all linux linux_arm linux_arm64 darwin windows clean
+all: linux_amd64 linux_arm64 darwin_amd64 darwin_arm64 windows_amd64
+_build:
+	go build $(LDFLAGS) -o aws-rotate-key-$(GOOS)-$(GOARCH)
 
-all: linux linux_arm linux_arm64 darwin windows
-
-linux:
-	go build $(LDFLAGS)
-	mkdir -p release
-	rm -f release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip
-	zip release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip aws-rotate-key
-
-linux_arm:
-	go build $(LDFLAGS)
-	mkdir -p release
-	rm -f release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip
-	zip release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip aws-rotate-key
-
+linux_amd64:
+	$(MAKE) _build GOOS=linux GOARCH=amd64
 linux_arm64:
-	go build $(LDFLAGS)
-	mkdir -p release
-	rm -f release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip
-	zip release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip aws-rotate-key
-
-darwin:
-	go build $(LDFLAGS)
-	mkdir -p release
-	rm -f release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip
-	zip release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip aws-rotate-key
-
-windows:
-	go build $(LDFLAGS)
-	mkdir -p release
-	rm -f release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip
-	zip release/aws-rotate-key-${VERSION}-${GOOS}_${GOARCH}.zip aws-rotate-key.exe
-
+	$(MAKE) _build GOOS=linux GOARCH=arm64
+darwin_amd64:
+	$(MAKE) _build GOOS=darwin GOARCH=amd64
+darwin_arm64:
+	$(MAKE) _build GOOS=darwin GOARCH=arm64
+windows_amd64:
+	$(MAKE) _build GOOS=windows GOARCH=amd64
+	NAME='aws-rotate-key-windows-amd64' && mv $$NAME $${NAME}.exe
 clean:
-	rm -rf release
-	rm -f aws-rotate-key aws-rotate-key.exe
+	rm -f aws-rotate-key-*
